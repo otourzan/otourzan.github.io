@@ -1,0 +1,6 @@
+@import '@material/layout-grid/dist/mdc.layout-grid.css';
+
+mwc-top-app-bar-fixed {
+  --mdc-theme-primary: rgb(13, 30, 87);
+  --mdc-theme-on-primary: white;
+}

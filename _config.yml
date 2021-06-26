@@ -1,1 +1,3 @@
 theme: jekyll-theme-midnight
+exclude: [docker/src, docker/rollup.config.js, docker/tsconfig.json, docker/package.json, docker/package-lock.json, docker/build.sh, docker/build]
+google_analytics: G-FZPMQC94M9
