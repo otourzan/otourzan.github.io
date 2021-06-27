@@ -1,8 +1,4 @@
 <html><head>
-</head><body>{% if site.google_analytics and jekyll.environment == 'production' %}
-  {% include analytics.html %}
-{% endif %}
-
 <!-- Add support for Web Components to older browsers. -->
 <script src="assets/webcomponents-loader-4a9fe416.js"></script>
 <script src="assets/custom-elements-es5-adapter-20c21b64.js"></script>
@@ -13,8 +9,8 @@
 <!-- <link rel="stylesheet" href="./styles.css"> -->
 
 
-
-
+</head>
+<body>
   <mwc-top-app-bar-fixed>
     <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
     <div slot="title">Docker Tools</div>
@@ -25,5 +21,12 @@
       <converter-element></converter-element>
     </div>
   </mwc-top-app-bar-fixed>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  
+    gtag('config', 'G-FZPMQC94M9');
+  </script>
 
 <script type="module" src="./styles.js"></script><script type="module" src="./converter-element.js"></script></body></html>
