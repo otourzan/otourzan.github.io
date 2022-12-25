@@ -1,5 +1,5 @@
-import {LitElement, html, css} from 'lit';
-import {customElement, query} from 'lit/decorators.js';
+import { LitElement, html, css } from 'lit';
+import { customElement, query } from 'lit/decorators.js';
 import '@material/mwc-button/mwc-button.js';
 import '@material/mwc-textarea/mwc-textarea.js';
 
@@ -65,7 +65,7 @@ class ConverterElement extends LitElement {
     try {
       converter = new DockerConverter(this.input.value);
     }
-    catch(err) {
+    catch (err) {
       const msg = 'Parsing docker inspect output failed: ' + err;
       console.log(msg);
       this.output.value = msg;
@@ -75,7 +75,7 @@ class ConverterElement extends LitElement {
     const containerName = this.containerName.value;
 
     const result = converter.FormatCLI(containerName);
-    if(result != null) {
+    if (result != null) {
       this.output.value = result;
     } else {
       this.output.value = "Conversion failed";

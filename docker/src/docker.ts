@@ -1,6 +1,6 @@
 // Conversion utility class to convert dockerinspect output to run args.
 
-export class  DockerConverter {
+export class DockerConverter {
 
   private container: any
   private options: string[] = [];
@@ -11,12 +11,12 @@ export class  DockerConverter {
   }
 
   private addOption(name: string, option: any) {
-    if(option)
+    if (option)
       this.options.push(`--${name}=${option}`);
   }
 
   private addListOption(name: string, option: any[]) {
-    if(!option)
+    if (!option)
       return;
 
     for (let opt of option) {
@@ -31,24 +31,24 @@ export class  DockerConverter {
 
     const ports = Object.assign({}, netPorts, portBindings);
 
-    for(let portNProto in ports) {
+    for (let portNProto in ports) {
       const bindingInfo = ports[portNProto];
       let [conatinerPort, proto] = portNProto.split('/');
 
       // add non tcp protos as trailing
       proto = proto == 'tcp' ? '' : '/' + proto;
 
-      if(Object.keys(bindingInfo).length === 0) {
+      if (Object.keys(bindingInfo).length === 0) {
         this.options.push(`--expose ${conatinerPort}${proto}`);
       } else {
         let hostIP = bindingInfo[0]['HostIp'] + ':';
         let hostPort = bindingInfo[0]['HostPort'];
 
-        if(hostPort == 0) {
+        if (hostPort == 0) {
           hostPort = '';
         }
 
-        this.options.push(`-p ${hostIP}${hostPort}:${conatinerPort}${proto}`); 
+        this.options.push(`-p ${hostIP}${hostPort}:${conatinerPort}${proto}`);
       }
     }
   }
@@ -59,8 +59,8 @@ export class  DockerConverter {
     if (!links)
       return;
 
-    for(let link of links) {
-      let [src, dst]: string[]|undefined[] = link.split(':');
+    for (let link of links) {
+      let [src, dst]: string[] | undefined[] = link.split(':');
       src = src?.split('/').pop();
       dst = dst?.split('/').pop();
 
@@ -71,15 +71,15 @@ export class  DockerConverter {
   private addRestartPolicy(): void {
     const restartPolicy = this.container.HostConfig?.RestartPolicy;
 
-    if(!restartPolicy || restartPolicy.Name?.toLowerCase() == 'no')
+    if (!restartPolicy || restartPolicy.Name?.toLowerCase() == 'no')
       return;
-    
+
     let policy: string = '';
-    if(restartPolicy.Name == 'on-failure')
+    if (restartPolicy.Name == 'on-failure')
       policy = `${restartPolicy.Name}:${restartPolicy.MaximumRetryCount}`;
     else
       policy = `${restartPolicy.Name}`;
-    
+
     this.addOption('restart', policy);
   }
 
@@ -89,8 +89,8 @@ export class  DockerConverter {
     if (!devices)
       return;
 
-    for(let i in devices) {
-      const dev: {[key:string]:string} = devices[i];
+    for (let i in devices) {
+      const dev: { [key: string]: string } = devices[i];
 
       const host = dev['PathOnHost'];
       const container = dev['PathInContainer'];
@@ -98,19 +98,19 @@ export class  DockerConverter {
 
       let devOption = `${host}:${container}`;
 
-      if(permissions !== 'rwm')
+      if (permissions !== 'rwm')
         devOption += permissions;
-      
+
       this.addOption('device', devOption);
     }
   }
 
   private addLabels(): void {
-    const labels: {[key:string]: string} = this.container.Config?.Labels;
+    const labels: { [key: string]: string } = this.container.Config?.Labels;
     if (!labels)
       return;
 
-    for(let l in labels) {
+    for (let l in labels) {
       const val = labels[l];
       this.addOption('label', `${l}=${val}`);
     }
@@ -122,11 +122,11 @@ export class  DockerConverter {
     const logType = logConf?.Type;
     const logOpts = logConf?.Config || {};
 
-    if(logType != 'json-file')
+    if (logType != 'json-file')
       this.addOption('log-driver', logType);
-    
-    if(Object.keys(logOpts).length !== 0) {
-      for(let key in logOpts){
+
+    if (Object.keys(logOpts).length !== 0) {
+      for (let key in logOpts) {
         this.addOption('log-opt', `${key}=${logOpts[key]}`);
       }
     }
@@ -137,18 +137,18 @@ export class  DockerConverter {
     if (!extHosts)
       return;
 
-    for(let i in extHosts)
+    for (let i in extHosts)
       this.addOption('add-host', extHosts[i]);
   }
 
-  FormatCLI(containerName: string) :string {
-    if(!this.container) {
+  FormatCLI(containerName: string): string {
+    if (!this.container) {
       return "no container config";
     }
 
     let runCommand = 'docker run ';
 
-    if(!containerName) {
+    if (!containerName) {
       const name = this.container.Name.split('/')[1];
       this.options.push('--name=' + name);
     } else {
@@ -156,7 +156,7 @@ export class  DockerConverter {
     }
 
     const networkMode = this.container.HostConfig?.NetworkMode;
-    if(networkMode != "default")
+    if (networkMode != "default")
       this.options.push(`--network=${networkMode}`)
 
     this.addOption('hostname', this.container.Config?.Hostname);
@@ -168,13 +168,13 @@ export class  DockerConverter {
     this.addOption('privileged', this.container.HostConfig?.Privileged);
     this.addOption('runtime', this.container.HostConfig?.Runtime);
 
-    
+
     this.addListOption('env', this.container.Config?.Env);
-    
+
     this.addListOption('volume', this.container.Config?.Volumes);
     this.addListOption('volume', this.container.HostConfig?.Binds);
     this.addListOption('volumes-from', this.container.HostConfig?.VolumesFrom);
-    
+
     this.addListOption('cap-add', this.container.HostConfig?.CapAdd);
     this.addListOption('cap-drop', this.container.HostConfig?.CapDrop);
 
@@ -185,26 +185,26 @@ export class  DockerConverter {
     this.addLabels();
     this.addLog();
     this.addExtraHosts();
-       
+
     this.addListOption('dns', this.container.HostConfig?.Dns);
 
-    if(!this.container.Config?.AttachStdout)
-        this.addOption('detach', true);
+    if (!this.container.Config?.AttachStdout)
+      this.addOption('detach', true);
 
-    if(this.container.Config?.Tty)
+    if (this.container.Config?.Tty)
       this.options.push('-t');
 
     // Add IMAGE
     const image = this.container.Config?.Image
-    if(!image) { throw new Error('No Image Found') };
-    this.options.push( image);
+    if (!image) { throw new Error('No Image Found') };
+    this.options.push(image);
 
     // Add CMD
     const cmds: string[] = this.container.Config?.Cmd;
     if (cmds) {
       let commands = '';
-      for(let cmd of cmds) {
-        commands += '"' + cmd.replace(/(["'$`\\])/g,'\\$1') + '" ';
+      for (let cmd of cmds) {
+        commands += '"' + cmd.replace(/(["'$`\\])/g, '\\$1') + '" ';
       }
       this.options.push(commands);
     }

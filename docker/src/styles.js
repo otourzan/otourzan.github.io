@@ -6,6 +6,6 @@ import '@material/mwc-textarea';
 
 import style from "./styles.css";
 
-addEventListener('load', function() {
+addEventListener('load', function () {
   document.body.classList.remove('unresolved');
 });
