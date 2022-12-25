@@ -56,6 +56,9 @@ export class  DockerConverter {
   private addLinks(): void {
     const links = this.container.HostConfig?.Links;
 
+    if (!links)
+      return;
+
     for(let link of links) {
       let [src, dst]: string[]|undefined[] = link.split(':');
       src = src?.split('/').pop();
@@ -83,6 +86,8 @@ export class  DockerConverter {
   private addDevices(): void {
 
     const devices: [] = this.container.HostConfig?.Devices;
+    if (!devices)
+      return;
 
     for(let i in devices) {
       const dev: {[key:string]:string} = devices[i];
@@ -102,6 +107,8 @@ export class  DockerConverter {
 
   private addLabels(): void {
     const labels: {[key:string]: string} = this.container.Config?.Labels;
+    if (!labels)
+      return;
 
     for(let l in labels) {
       const val = labels[l];
@@ -127,6 +134,8 @@ export class  DockerConverter {
 
   private addExtraHosts(): void {
     const extHosts: string[] = this.container.HostConfig?.ExtraHosts;
+    if (!extHosts)
+      return;
 
     for(let i in extHosts)
       this.addOption('add-host', extHosts[i]);
@@ -192,12 +201,13 @@ export class  DockerConverter {
 
     // Add CMD
     const cmds: string[] = this.container.Config?.Cmd;
-    
-    let commands = '';
-    for(let cmd of cmds) {
-      commands += '"' + cmd.replace(/(["'$`\\])/g,'\\$1') + '" ';
+    if (cmds) {
+      let commands = '';
+      for(let cmd of cmds) {
+        commands += '"' + cmd.replace(/(["'$`\\])/g,'\\$1') + '" ';
+      }
+      this.options.push(commands);
     }
-    this.options.push(commands);
 
     const optionsStr = this.options.join(' ');
     runCommand += optionsStr;
